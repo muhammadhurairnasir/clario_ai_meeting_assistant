@@ -11,7 +11,7 @@ An AI-powered web application that transcribes audio meetings, generates condens
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/muhammadhurairnasir/clario_ai_meeting_assistant.git
    cd Clario_Project_flask
    ```
 
