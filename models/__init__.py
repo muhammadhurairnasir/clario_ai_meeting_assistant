@@ -15,7 +15,7 @@ from models.database import (
 
     # Meetings
     insert_meeting,
-    set_meeting_graph,
+    set_meeting_graphs,
     get_meetings_by_user,
     get_meeting_detail,
 
@@ -37,7 +37,7 @@ __all__ = [
     "init_db", "get_connection",
     "insert_user", "get_user_by_email", "get_user_by_id",
     "email_exists", "username_exists",
-    "insert_meeting", "set_meeting_graph",
+    "insert_meeting", "set_meeting_graphs",
     "get_meetings_by_user", "get_meeting_detail",
     "insert_transcript",
     "insert_summary",

@@ -88,7 +88,7 @@ def run_clario_pipeline(
 
     from models.database import (
         insert_transcript, insert_summary,
-        insert_tasks, set_meeting_graph,
+        insert_tasks,
     )
     from services.transcription import transcribe_audio
     from services.summarization import summarize_text
@@ -151,24 +151,49 @@ def run_clario_pipeline(
         except Exception as exc:
             print(f"️  DB save failed: {exc}")
 
-        # ── 5. Knowledge graph ─────────────────────────────────────────────────
+        # ── 5. Analytics & Graphs ──────────────────────────────────────────────
         try:
-            from utils.visualization import build_knowledge_graph
-            # Save inside static/graphs/ so Flask can serve via url_for('static')
+            from utils.visualization import (
+                build_knowledge_graph,
+                generate_assignee_bar_chart,
+                generate_priority_donut_chart,
+                generate_status_pie_chart
+            )
+            from models.database import set_meeting_graphs
+            
             app_root = pathlib.Path(__file__).resolve().parent.parent
             static_graph_dir = app_root / "static" / "graphs"
             static_graph_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Paths
             graph_filename = f"graph_m{meeting_id}.png"
+            bar_filename   = f"bar_m{meeting_id}.png"
+            donut_filename = f"donut_m{meeting_id}.png"
+            status_filename = f"status_m{meeting_id}.png"
+            
             graph_path_abs = static_graph_dir / graph_filename
-            # Attach sequential id to each task dict for graph node IDs
+            bar_path_abs   = static_graph_dir / bar_filename
+            donut_path_abs = static_graph_dir / donut_filename
+            status_path_abs = static_graph_dir / status_filename
+            
             tasks_for_graph = [dict(t, id=i+1) for i, t in enumerate(tasks)]
+            
+            # Generate
             build_knowledge_graph(tasks_for_graph, output_path=str(graph_path_abs))
-            # Store only the static-relative path (e.g. "graphs/graph_m7.png")
+            generate_assignee_bar_chart(tasks_for_graph, output_path=str(bar_path_abs))
+            generate_priority_donut_chart(tasks_for_graph, output_path=str(donut_path_abs))
+            generate_status_pie_chart(tasks_for_graph, output_path=str(status_path_abs))
+            
+            # Relative paths for DB
             graph_path = f"graphs/{graph_filename}"
-            set_meeting_graph(meeting_id, graph_path, db_path)
-            print(f"  Knowledge graph saved: {graph_path_abs}")
+            bar_path   = f"graphs/{bar_filename}"
+            donut_path = f"graphs/{donut_filename}"
+            status_path = f"graphs/{status_filename}"
+            
+            set_meeting_graphs(meeting_id, graph_path, bar_path, donut_path, status_path, db_path)
+            print(f"  Analytics graphs generated for meeting {meeting_id}")
         except Exception as exc:
-            print(f"  Knowledge graph failed: {exc}")
+            print(f"  Analytics generation failed: {exc}")
 
     return {
         "transcript": transcript,

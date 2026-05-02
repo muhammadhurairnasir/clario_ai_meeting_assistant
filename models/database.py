@@ -54,12 +54,15 @@ def init_db(db_path: str = DB_PATH) -> None:
 
             -- ── Meetings ───────────────────────────────────────────────────
             CREATE TABLE IF NOT EXISTS meetings (
-                id             INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id        INTEGER NOT NULL,
-                meeting_date   TEXT    DEFAULT (date('now')),
-                audio_filename TEXT,
-                graph_path     TEXT,
-                created_at     TEXT    DEFAULT (datetime('now')),
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id          INTEGER NOT NULL,
+                meeting_date     TEXT    DEFAULT (date('now')),
+                audio_filename   TEXT,
+                graph_path       TEXT,
+                bar_chart_path   TEXT,
+                donut_chart_path TEXT,
+                status_chart_path TEXT,
+                created_at       TEXT    DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
 
@@ -88,6 +91,7 @@ def init_db(db_path: str = DB_PATH) -> None:
                 due_date    TEXT    DEFAULT 'Not specified',
                 status      TEXT    DEFAULT 'pending',
                 keyword     TEXT,
+                priority    TEXT    DEFAULT 'Low',
                 FOREIGN KEY (meeting_id) REFERENCES meetings(id) ON DELETE CASCADE
             );
         """)
@@ -157,12 +161,13 @@ def insert_meeting(user_id: int,
         return cur.lastrowid
 
 
-def set_meeting_graph(meeting_id: int, graph_path: str,
-                      db_path: str = DB_PATH) -> None:
+def set_meeting_graphs(meeting_id: int, graph_path: str,
+                       bar_path: str, donut_path: str, status_path: str,
+                       db_path: str = DB_PATH) -> None:
     with get_connection(db_path) as conn:
         conn.execute(
-            "UPDATE meetings SET graph_path = ? WHERE id = ?",
-            (graph_path, meeting_id),
+            "UPDATE meetings SET graph_path = ?, bar_chart_path = ?, donut_chart_path = ?, status_chart_path = ? WHERE id = ?",
+            (graph_path, bar_path, donut_path, status_path, meeting_id),
         )
         conn.commit()
 
@@ -176,6 +181,9 @@ def get_meetings_by_user(user_id: int,
                     m.meeting_date,
                     m.audio_filename,
                     m.graph_path,
+                    m.bar_chart_path,
+                    m.donut_chart_path,
+                    m.status_chart_path,
                     m.created_at,
                     t.content  AS transcript,
                     s.content  AS summary,
@@ -242,8 +250,8 @@ def insert_tasks(meeting_id: int, tasks: List[Dict],
     with get_connection(db_path) as conn:
         conn.executemany(
             """INSERT INTO tasks
-               (meeting_id, description, assigned_to, due_date, status, keyword)
-               VALUES (?,?,?,?,?,?)""",
+               (meeting_id, description, assigned_to, due_date, status, keyword, priority)
+               VALUES (?,?,?,?,?,?,?)""",
             [
                 (
                     meeting_id,
@@ -252,6 +260,7 @@ def insert_tasks(meeting_id: int, tasks: List[Dict],
                     t.get("due_date",     "Not specified"),
                     t.get("status",       "pending"),
                     t.get("keyword",      ""),
+                    t.get("priority",     "Low"),
                 )
                 for t in tasks
             ],

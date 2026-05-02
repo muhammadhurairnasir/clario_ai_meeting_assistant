@@ -54,7 +54,7 @@
               <th>Description</th>
               <th>Assigned to</th>
               <th>Due date</th>
-              <th>Keyword</th>
+              <th>Priority</th>
               <th>Status</th>
               <th></th>
             </tr>
@@ -79,7 +79,13 @@
                 {% endif %}
               </td>
               <td>
-                <span class="badge badge-blue">{{ t.keyword or '—' }}</span>
+                {% if t.priority == 'High' %}
+                  <span class="badge" style="background-color:rgba(166,68,68,0.18); color:#C88585;">🔴 High</span>
+                {% elif t.priority == 'Medium' %}
+                  <span class="badge" style="background-color:rgba(196,139,71,0.18); color:#D9B384;">🟡 Medium</span>
+                {% else %}
+                  <span class="badge" style="background-color:rgba(74,124,89,0.18); color:#7CA88B;">🟢 Low</span>
+                {% endif %}
               </td>
               <td>
                 {% if t.status == 'completed' %}
@@ -113,15 +119,46 @@
     </div>
   {% endif %}
 
-  <!-- ── Knowledge Graph ─────────────────────────────────── -->
-  {% if meeting.graph_path %}
+  <!-- ── Analytics & Visualizations ───────────────────────── -->
+  {% if meeting.graph_path or meeting.bar_chart_path or meeting.donut_chart_path %}
   <div style="margin-bottom:32px;">
-    <h2 class="section-heading">🗸️ Knowledge Graph</h2>
-    <div class="card" style="padding:20px; text-align:center;">
-      <img src="{{ url_for('static', filename=meeting.graph_path) }}"
-           alt="Knowledge graph for meeting #{{ meeting.id }}"
-           style="max-width:100%; border-radius:8px;"
-           loading="lazy">
+    <h2 class="section-heading">📊 Meeting Analytics</h2>
+    
+    <div style="display:grid; grid-template-columns: 1fr; gap:24px; margin-bottom:24px;">
+      {% if meeting.graph_path %}
+      <div class="card" style="padding:20px; text-align:center;">
+        <h3 style="margin-top:0; font-size:1.1rem; color:var(--text); margin-bottom:16px;">Knowledge Graph</h3>
+        <img src="{{ url_for('static', filename=meeting.graph_path) }}"
+             alt="Knowledge graph"
+             style="max-width:100%; border-radius:8px;" loading="lazy">
+      </div>
+      {% endif %}
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:24px;">
+      {% if meeting.bar_chart_path %}
+      <div class="card" style="padding:20px; text-align:center;">
+        <img src="{{ url_for('static', filename=meeting.bar_chart_path) }}"
+             alt="Assignee Bar Chart"
+             style="max-width:100%; border-radius:8px;" loading="lazy">
+      </div>
+      {% endif %}
+
+      {% if meeting.donut_chart_path %}
+      <div class="card" style="padding:20px; text-align:center;">
+        <img src="{{ url_for('static', filename=meeting.donut_chart_path) }}"
+             alt="Task Priority Distribution Chart"
+             style="max-width:100%; border-radius:8px;" loading="lazy">
+      </div>
+      {% endif %}
+      
+      {% if meeting.status_chart_path %}
+      <div class="card" style="padding:20px; text-align:center;">
+        <img src="{{ url_for('static', filename=meeting.status_chart_path) }}"
+             alt="Task Completion Status Chart"
+             style="max-width:100%; border-radius:8px;" loading="lazy">
+      </div>
+      {% endif %}
     </div>
   </div>
   {% endif %}

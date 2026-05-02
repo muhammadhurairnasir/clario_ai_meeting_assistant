@@ -35,6 +35,12 @@ TASK_KEYWORDS: List[str] = [
 ]
 
 
+PRIORITY_KEYWORDS = {
+    "High": [r"\burgent\b", r"\basap\b", r"\bimmediately\b", r"\bcritical\b", r"\bmust\b", r"\bimportant\b"],
+    "Medium": [r"\bsoon\b", r"\bby this week\b", r"\bshould\b", r"\bneeds? to\b"]
+}
+
+
 def load_nlp(model: str = "en_core_web_sm"):
     """
     Load (or return cached) spaCy English model.
@@ -122,6 +128,18 @@ def detect_tasks(text: str,
                 due_date = ent.text
                 break
 
+        # Priority extraction
+        priority = "Low"
+        for p_pattern in PRIORITY_KEYWORDS["High"]:
+            if re.search(p_pattern, sentence_lower):
+                priority = "High"
+                break
+        if priority == "Low":
+            for p_pattern in PRIORITY_KEYWORDS["Medium"]:
+                if re.search(p_pattern, sentence_lower):
+                    priority = "Medium"
+                    break
+
         tasks.append(
             {
                 "id":          len(tasks) + 1,
@@ -129,6 +147,7 @@ def detect_tasks(text: str,
                 "assigned_to": assigned_to,
                 "due_date":    due_date,
                 "keyword":     matched_keyword,
+                "priority":    priority,
                 "status":      "pending",
             }
         )

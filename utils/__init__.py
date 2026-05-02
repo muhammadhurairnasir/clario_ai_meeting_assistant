@@ -11,7 +11,7 @@ from utils.helpers import (
     ensure_dir,
     list_files,
 )
-from utils.visualization import build_knowledge_graph, generate_task_bar_chart
+from utils.visualization import build_knowledge_graph, generate_assignee_bar_chart, generate_priority_donut_chart, generate_status_pie_chart
 
 __all__ = [
     # helpers
@@ -25,5 +25,7 @@ __all__ = [
     "list_files",
     # visualization
     "build_knowledge_graph",
-    "generate_task_bar_chart",
+    "generate_assignee_bar_chart",
+    "generate_priority_donut_chart",
+    "generate_status_pie_chart",
 ]
