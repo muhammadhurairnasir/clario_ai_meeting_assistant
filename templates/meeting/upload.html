@@ -55,9 +55,12 @@
 
     <!-- ── Submit ───────────────────────────────────────────── -->
     <div id="upload-spinner" style="display:none; margin-bottom:20px; text-align:center;">
-      <div class="spinner"></div>
-      <p class="text-muted" style="margin-top:12px; font-size:0.9rem;">
-        Processing your meeting — this may take a minute…
+      <div class="logo-loader">
+        <span class="logo-pulse">🎙️</span>
+      </div>
+      <h3 id="loading-percentage" style="font-size:2rem; font-weight:800; color:var(--text); margin-top:16px; margin-bottom:4px;">0%</h3>
+      <p id="loading-status-text" class="text-muted" style="font-size:0.9rem;">
+        Uploading audio file...
       </p>
     </div>
 

@@ -36,16 +36,56 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ── Upload form — show spinner on submit ────────────────────────────────────
+  // ── Upload form — show spinner & percentage on submit ───────────────────────
   const uploadForm = document.getElementById('upload-form');
   const submitBtn  = document.getElementById('upload-submit-btn');
   const spinnerEl  = document.getElementById('upload-spinner');
+  const pctEl      = document.getElementById('loading-percentage');
+  const statusEl   = document.getElementById('loading-status-text');
 
   if (uploadForm && submitBtn) {
     uploadForm.addEventListener('submit', () => {
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Processing…';
+      submitBtn.style.display = 'none'; // Hide button completely
+      
+      // Hide the file/text inputs so the user just sees the loader
+      const cards = uploadForm.querySelectorAll('.card');
+      cards.forEach(c => c.style.display = 'none');
+      
       if (spinnerEl) spinnerEl.style.display = 'block';
+
+      let progress = 0;
+      
+      // Simulated intelligent loading progression
+      const interval = setInterval(() => {
+        // Fast upload phase (0 to 15%)
+        if (progress < 15) {
+          progress += Math.floor(Math.random() * 4) + 2;
+          if (statusEl) statusEl.textContent = 'Uploading audio file...';
+        }
+        // AI Transcription phase (15% to 55%)
+        else if (progress < 55) {
+          progress += Math.floor(Math.random() * 3) + 1;
+          if (statusEl) statusEl.textContent = 'Whisper AI is transcribing audio...';
+        }
+        // Summarization phase (55% to 80%)
+        else if (progress < 80) {
+          progress += Math.floor(Math.random() * 2) + 1;
+          if (statusEl) statusEl.textContent = 'BART AI is generating summary...';
+        }
+        // Task extraction & graph phase (80% to 95%)
+        else if (progress < 95) {
+          progress += 1;
+          if (statusEl) statusEl.textContent = 'Extracting tasks & building graphs...';
+        }
+        // Cap at 95% until server actually responds and page reloads
+        else {
+          progress = 95;
+          if (statusEl) statusEl.textContent = 'Finalizing business analytics...';
+        }
+
+        if (pctEl) pctEl.textContent = progress + '%';
+
+      }, 800); // Update every 800ms
     });
   }
 

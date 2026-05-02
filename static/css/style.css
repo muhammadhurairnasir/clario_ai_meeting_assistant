@@ -343,3 +343,19 @@ tr:hover td { background: rgba(255,255,255,0.025); }
   .hero-actions { flex-direction: column; }
   .navbar-nav { display: none; }
 }
+/* Logo Loading Animation */
+.logo-loader {
+  display: inline-block;
+  font-size: 3rem;
+  margin: 0 auto;
+}
+.logo-pulse {
+  display: inline-block;
+  animation: pulse-logo 1.5s infinite ease-in-out;
+  filter: drop-shadow(0 0 15px rgba(194, 163, 112, 0.4));
+}
+@keyframes pulse-logo {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
