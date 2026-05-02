@@ -1,0 +1,34 @@
+# =============================================================================
+# Clario – AI Meeting Assistant  |  requirements.txt
+# =============================================================================
+# Install:  pip install -r requirements.txt
+# Then:     python -m spacy download en_core_web_sm
+# =============================================================================
+
+# ── Web framework ─────────────────────────────────────────────────────────────
+Flask>=2.3.0
+Werkzeug>=2.3.0
+flask-cors
+python-dotenv
+
+# ── AI / ML core ──────────────────────────────────────────────────────────────
+openai-whisper
+transformers>=4.30.0
+torch>=2.0.0
+torchaudio>=2.0.0
+spacy>=3.5.0
+# Run after install: python -m spacy download en_core_web_sm
+
+# ── Audio decoding (Whisper needs ffmpeg) ─────────────────────────────────────
+ffmpeg-python
+
+# ── Evaluation metrics ────────────────────────────────────────────────────────
+rouge-score
+
+# ── Visualisation ─────────────────────────────────────────────────────────────
+networkx>=3.0
+matplotlib>=3.7.0
+
+# ── Utilities ─────────────────────────────────────────────────────────────────
+numpy>=1.24.0
+tqdm

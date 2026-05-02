@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Meeting #{{ meeting.id }} results{% endblock %}
+
+{% block content %}
+<div class="page-body">
+<div class="container">
+
+  <!-- ── Breadcrumb ───────────────────────────────────────── -->
+  <div style="margin-bottom:28px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+    <a href="{{ url_for('dashboard.index') }}" class="text-muted" style="font-size:0.9rem;">
+      ← Back to dashboard
+    </a>
+    <span class="badge badge-purple">Meeting #{{ meeting.id }}</span>
+  </div>
+
+  <!-- ── Heading ──────────────────────────────────────────── -->
+  <h1 style="font-size:2rem; font-weight:800; margin-bottom:4px;">Meeting results</h1>
+  <p class="text-muted" style="margin-bottom:36px;">
+    📅 {{ meeting.meeting_date }}
+    {% if meeting.created_at %}
+      &nbsp;·&nbsp; processed {{ meeting.created_at[:19] }}
+    {% endif %}
+  </p>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; margin-bottom:32px;">
+
+    <!-- ── Summary ──────────────────────────────────────────── -->
+    <div class="card" style="padding:28px;">
+      <h2 class="section-heading">📋 Summary</h2>
+      <p style="line-height:1.75; color:var(--muted);">
+        {{ meeting.summary or "No summary generated." }}
+      </p>
+    </div>
+
+    <!-- ── Transcript ───────────────────────────────────────── -->
+    <div class="card" style="padding:28px;">
+      <h2 class="section-heading">📄 Transcript</h2>
+      <div class="transcript-box">{{ meeting.transcript or "No transcript available." }}</div>
+    </div>
+
+  </div>
+
+  <!-- ── Tasks ────────────────────────────────────────────── -->
+  <h2 class="section-heading">✅ Action items ({{ tasks|length }})</h2>
+
+  {% if tasks %}
+    <div class="card" style="padding:0; overflow:hidden; margin-bottom:32px;">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Description</th>
+              <th>Assigned to</th>
+              <th>Due date</th>
+              <th>Keyword</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in tasks %}
+            <tr>
+              <td><span class="badge badge-purple">{{ t.id }}</span></td>
+              <td style="max-width:340px;">{{ t.description }}</td>
+              <td>
+                {% if t.assigned_to != 'Unknown' %}
+                  <span class="badge badge-green">👤 {{ t.assigned_to }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if t.due_date != 'Not specified' %}
+                  <span class="badge badge-amber">📅 {{ t.due_date }}</span>
+                {% else %}
+                  <span class="text-muted">—</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge badge-blue">{{ t.keyword or '—' }}</span>
+              </td>
+              <td>
+                {% if t.status == 'completed' %}
+                  <span class="badge badge-green">✅ Done</span>
+                {% else %}
+                  <span class="badge badge-amber">🔄 Pending</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if t.status != 'completed' %}
+                <form method="POST" action="{{ url_for('meeting.complete_task', task_id=t.id) }}"
+                      style="margin:0;">
+                  <button type="submit" class="btn btn-outline btn-sm"
+                          title="Mark as done"
+                          onclick="return confirm('Mark this task as completed?')">
+                    ✔ Done
+                  </button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  {% else %}
+    <div class="card" style="padding:40px; text-align:center; margin-bottom:32px;">
+      <p class="text-muted">No action items were detected in this meeting.</p>
+    </div>
+  {% endif %}
+
+  <!-- ── Knowledge Graph ─────────────────────────────────── -->
+  {% if meeting.graph_path %}
+  <div style="margin-bottom:32px;">
+    <h2 class="section-heading">🗸️ Knowledge Graph</h2>
+    <div class="card" style="padding:20px; text-align:center;">
+      <img src="{{ url_for('static', filename=meeting.graph_path) }}"
+           alt="Knowledge graph for meeting #{{ meeting.id }}"
+           style="max-width:100%; border-radius:8px;"
+           loading="lazy">
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Actions ───────────────────────────────────────────────── -->
+  <div style="display:flex; gap:14px; flex-wrap:wrap;">
+    <a href="{{ url_for('meeting.upload') }}" class="btn btn-primary">
+      + Process another meeting
+    </a>
+    <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline">
+      Dashboard
+    </a>
+  </div>
+
+</div>
+</div>
+{% endblock %}

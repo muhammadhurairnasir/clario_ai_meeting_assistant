@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Upload meeting{% endblock %}
+
+{% block content %}
+<div class="page-body">
+<div class="container" style="max-width:760px;">
+
+  <div style="margin-bottom:32px;">
+    <a href="{{ url_for('dashboard.index') }}" class="text-muted" style="font-size:0.9rem;">
+      ← Back to dashboard
+    </a>
+  </div>
+
+  <h1 style="font-size:2rem; font-weight:800; margin-bottom:6px;">Upload a meeting</h1>
+  <p class="text-muted" style="margin-bottom:36px;">
+    Provide an audio recording <em>or</em> paste the transcript directly —
+    Clario will do the rest.
+  </p>
+
+  <form id="upload-form" method="POST"
+        action="{{ url_for('meeting.upload') }}"
+        enctype="multipart/form-data"
+        novalidate>
+
+    <!-- ── Audio upload ──────────────────────────────────────── -->
+    <div class="card" style="padding:32px; margin-bottom:24px;">
+      <h2 class="section-heading" style="font-size:1rem;">🎤 Audio file</h2>
+
+      <div class="upload-zone" id="upload-zone">
+        <div class="upload-icon">🎵</div>
+        <p style="font-weight:600; margin-bottom:4px;">
+          Drag &amp; drop your audio here
+        </p>
+        <p class="upload-hint">or click to browse — MP3, WAV, M4A, OGG, FLAC, WEBM</p>
+        <input
+          type="file" id="audio_file" name="audio_file"
+          accept=".mp3,.wav,.m4a,.ogg,.flac,.webm"
+          style="display:none;"
+        />
+      </div>
+    </div>
+
+    <!-- ── Text input alternative ───────────────────────────── -->
+    <div class="card" style="padding:32px; margin-bottom:28px;">
+      <h2 class="section-heading" style="font-size:1rem;">📝 Paste transcript (optional)</h2>
+      <div class="form-group" style="margin-bottom:0;">
+        <textarea
+          id="text_input" name="text_input"
+          class="form-control" style="min-height:180px;"
+          placeholder="Paste your meeting transcript here if you don't have an audio file…"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- ── Submit ───────────────────────────────────────────── -->
+    <div id="upload-spinner" style="display:none; margin-bottom:20px; text-align:center;">
+      <div class="spinner"></div>
+      <p class="text-muted" style="margin-top:12px; font-size:0.9rem;">
+        Processing your meeting — this may take a minute…
+      </p>
+    </div>
+
+    <button id="upload-submit-btn" type="submit" class="btn btn-primary btn-block">
+      🚀 Process meeting
+    </button>
+
+  </form>
+
+</div>
+</div>
+{% endblock %}

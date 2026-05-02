@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-body">
+<div class="container">
+
+  <!-- ── Page header ──────────────────────────────────────── -->
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:16px;">
+    <div>
+      <h1 style="font-size:2rem; font-weight:800; margin-bottom:4px;">
+        Good day, {{ user.username }} 👋
+      </h1>
+      <p class="text-muted">Here's what's happening with your meetings.</p>
+    </div>
+    <a href="{{ url_for('meeting.upload') }}" class="btn btn-primary">
+      + Upload meeting
+    </a>
+  </div>
+
+  <!-- ── Stat cards ───────────────────────────────────────── -->
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap:18px; margin-bottom:44px;">
+
+    <div class="card stat-card">
+      <div class="stat-number">{{ total_meetings }}</div>
+      <div class="stat-label">📁 Meetings processed</div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-number">{{ total_tasks }}</div>
+      <div class="stat-label">📋 Total tasks</div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-number">{{ pending_count }}</div>
+      <div class="stat-label">⏳ Pending tasks</div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-number">{{ people_stats|length }}</div>
+      <div class="stat-label">👥 Assignees tracked</div>
+    </div>
+
+  </div>
+
+  <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; flex-wrap:wrap;">
+
+    <!-- ── Recent meetings ──────────────────────────────────── -->
+    <div>
+      <h2 class="section-heading">📁 Recent meetings</h2>
+
+      {% if meetings %}
+        <div class="card" style="padding:0; overflow:hidden;">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Summary preview</th>
+                  <th>Created</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for m in meetings|reverse %}
+                <tr>
+                  <td><span class="badge badge-purple">{{ m.id }}</span></td>
+                  <td>{{ m.meeting_date }}</td>
+                  <td style="max-width:320px; color:var(--muted); font-size:0.88rem;">
+                    {{ (m.summary or '')[:120] }}{% if (m.summary or '')|length > 120 %}…{% endif %}
+                  </td>
+                  <td style="color:var(--muted); font-size:0.85rem; white-space:nowrap;">
+                    {{ m.created_at[:10] if m.created_at else '—' }}
+                  </td>
+                  <td>
+                    <a href="{{ url_for('meeting.result', meeting_id=m.id) }}"
+                       class="btn btn-outline btn-sm">
+                      View →
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      {% else %}
+        <div class="card" style="padding:48px; text-align:center;">
+          <div style="font-size:3rem; margin-bottom:16px;">🎙️</div>
+          <p style="font-weight:600; margin-bottom:8px;">No meetings yet</p>
+          <p class="text-muted" style="margin-bottom:24px;">Upload your first meeting recording to get started.</p>
+          <a href="{{ url_for('meeting.upload') }}" class="btn btn-primary btn-sm">Upload now</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- ── Assignee leaderboard ──────────────────────────────── -->
+    <div>
+      <h2 class="section-heading">👥 Top assignees</h2>
+      <div class="card" style="padding:22px;">
+        {% if people_stats %}
+          {% for name, count in people_stats[:8] %}
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+            <span style="font-weight:500;">{{ name }}</span>
+            <span class="badge badge-blue">{{ count }} task{{ 's' if count != 1 }}</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted" style="text-align:center; padding:24px 0;">No data yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+{% endblock %}
