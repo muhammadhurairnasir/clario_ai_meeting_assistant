@@ -139,7 +139,7 @@ def detect_tasks(text: str,
         if priority != "High":
             # Dynamic proximity-based priority
             due_lower = due_date.lower()
-            if "tomorrow" in due_lower:
+            if "tomorrow" in due_lower or "today" in due_lower:
                 priority = "High"
             elif "friday" in due_lower or "end of week" in due_lower:
                 priority = "Low"
