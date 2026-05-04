@@ -6,6 +6,7 @@ Extracted from Clario Project notebook (cells 110-112, 114, 121).
 """
 
 import re
+import datetime
 from typing import List, Dict, Any
 
 # Module-level NLP cache
@@ -134,6 +135,30 @@ def detect_tasks(text: str,
             if re.search(p_pattern, sentence_lower):
                 priority = "High"
                 break
+        
+        if priority != "High":
+            # Dynamic proximity-based priority
+            due_lower = due_date.lower()
+            if "tomorrow" in due_lower:
+                priority = "High"
+            elif "friday" in due_lower or "end of week" in due_lower:
+                priority = "Low"
+            else:
+                days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+                # Use current time to find distance
+                current_day_idx = datetime.datetime.now().weekday()
+                for i, day_name in enumerate(days):
+                    if day_name in due_lower:
+                        diff = (i - current_day_idx) % 7
+                        if diff == 1:
+                            priority = "High"
+                        elif diff == 2:
+                            priority = "Medium"
+                        elif diff >= 3:
+                            priority = "Low"
+                        break
+
+        # Fallback to keyword Medium if not already High
         if priority == "Low":
             for p_pattern in PRIORITY_KEYWORDS["Medium"]:
                 if re.search(p_pattern, sentence_lower):
