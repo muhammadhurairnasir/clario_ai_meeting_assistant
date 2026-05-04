@@ -87,7 +87,7 @@ def init_db(db_path: str = DB_PATH) -> None:
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
                 meeting_id  INTEGER NOT NULL,
                 description TEXT,
-                assigned_to TEXT    DEFAULT 'Unknown',
+                assigned_to TEXT    DEFAULT 'Team',
                 due_date    TEXT    DEFAULT 'Not specified',
                 status      TEXT    DEFAULT 'pending',
                 keyword     TEXT,

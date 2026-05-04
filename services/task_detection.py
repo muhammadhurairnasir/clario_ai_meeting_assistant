@@ -115,7 +115,7 @@ def detect_tasks(text: str,
         sent_doc = loaded_nlp(sentence)
 
         # Assignee: first PERSON entity
-        assigned_to = "Unknown"
+        assigned_to = "Team"
         for ent in sent_doc.ents:
             if ent.label_ == "PERSON":
                 assigned_to = ent.text
