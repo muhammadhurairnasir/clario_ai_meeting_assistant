@@ -114,30 +114,56 @@ def run_clario_pipeline(
 
     print(f" Transcript length: {len(transcript)} chars")
 
-    # ── 2. Summarisation ───────────────────────────────────────────────────────
-    print(" Summarising …")
-    try:
-        summary = summarize_text(
-            transcript,
-            summariser  = _get_summariser(),
-            max_length  = SUMMARY_MAX_LENGTH,
-            min_length  = SUMMARY_MIN_LENGTH,
-        )
-    except Exception as exc:
-        print(f"️  Summarisation failed: {exc}")
-        summary = transcript[:500]          # graceful degradation
-
-    print(f" Summary length: {len(summary)} chars")
-
-    # ── 3. Task detection ──────────────────────────────────────────────────────
+    # ── 2. Task detection ──────────────────────────────────────────────────────
     print(" Detecting tasks …")
     try:
-        tasks = detect_tasks(transcript, nlp=_get_nlp())
+        tasks = detect_tasks(transcript, nlp_model=_get_nlp())
     except Exception as exc:
         print(f"️  Task detection failed: {exc}")
         tasks = []
 
     print(f" {len(tasks)} task(s) detected")
+
+    # ── 3. Summarisation ───────────────────────────────────────────────────────
+    print(" Summarising …")
+    try:
+        raw_summary = summarize_text(
+            transcript,
+            summariser  = _get_summariser(),
+            max_length  = SUMMARY_MAX_LENGTH,
+            min_length  = SUMMARY_MIN_LENGTH,
+        )
+        
+        # Smart Merging: Append only "missing" tasks naturally to avoid redundancy
+        summary_lower = raw_summary.lower()
+        to_add = []
+        for t in tasks:
+            d = t.get('description', '')
+            if not d: continue
+            
+            # If person is already mentioned, we assume BART covered their main task
+            p = t.get('assigned_to', 'unknown').lower()
+            if p != 'unknown' and p != '' and p in summary_lower:
+                continue
+            
+            # If specific unique words are already there, skip
+            if d.lower() in summary_lower:
+                continue
+                
+            to_add.append(d)
+            
+        if to_add:
+            combined = raw_summary.strip()
+            if not combined.endswith('.'): combined += "."
+            summary = combined + " Furthermore, " + " ".join(to_add)
+        else:
+            summary = raw_summary
+            
+    except Exception as exc:
+        print(f"️  Summarisation failed: {exc}")
+        summary = transcript[:500]          # graceful degradation
+
+    print(f" Summary length: {len(summary)} chars")
 
     # ── 4. Persist to DB ───────────────────────────────────────────────────────
     graph_path = ""
