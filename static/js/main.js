@@ -103,4 +103,40 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.navbar-nav a').forEach(a => {
     if (a.getAttribute('href') === current) a.classList.add('active');
   });
+
+  // ── Image Lightbox / Modal ────────────────────────────────────────────────────
+  const modal = document.getElementById('image-modal');
+  const modalImg = document.getElementById('image-modal-content');
+  const closeBtn = document.getElementById('image-modal-close');
+  const graphImages = document.querySelectorAll('.graph-img');
+
+  if (modal && modalImg && closeBtn && graphImages.length > 0) {
+    // Open modal when a graph is clicked
+    graphImages.forEach(img => {
+      img.addEventListener('click', function() {
+        modal.style.display = 'block';
+        modalImg.src = this.src;
+      });
+    });
+
+    // Close modal when back button is clicked
+    closeBtn.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside the image
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+
+    // Close modal on escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.style.display === 'block') {
+        modal.style.display = 'none';
+      }
+    });
+  }
+
 });

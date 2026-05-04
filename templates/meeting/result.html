@@ -129,7 +129,7 @@
       <div class="card" style="padding:20px; text-align:center;">
         <h3 style="margin-top:0; font-size:1.1rem; color:var(--text); margin-bottom:16px;">Knowledge Graph</h3>
         <img src="{{ url_for('static', filename=meeting.graph_path) }}"
-             alt="Knowledge graph"
+             alt="Knowledge graph" class="graph-img"
              style="max-width:100%; border-radius:8px;" loading="lazy">
       </div>
       {% endif %}
@@ -139,7 +139,7 @@
       {% if meeting.bar_chart_path %}
       <div class="card" style="padding:20px; text-align:center;">
         <img src="{{ url_for('static', filename=meeting.bar_chart_path) }}"
-             alt="Assignee Bar Chart"
+             alt="Assignee Bar Chart" class="graph-img"
              style="max-width:100%; border-radius:8px;" loading="lazy">
       </div>
       {% endif %}
@@ -147,7 +147,7 @@
       {% if meeting.donut_chart_path %}
       <div class="card" style="padding:20px; text-align:center;">
         <img src="{{ url_for('static', filename=meeting.donut_chart_path) }}"
-             alt="Task Priority Distribution Chart"
+             alt="Task Priority Distribution Chart" class="graph-img"
              style="max-width:100%; border-radius:8px;" loading="lazy">
       </div>
       {% endif %}
@@ -155,7 +155,7 @@
       {% if meeting.status_chart_path %}
       <div class="card" style="padding:20px; text-align:center;">
         <img src="{{ url_for('static', filename=meeting.status_chart_path) }}"
-             alt="Task Completion Status Chart"
+             alt="Task Completion Status Chart" class="graph-img"
              style="max-width:100%; border-radius:8px;" loading="lazy">
       </div>
       {% endif %}
@@ -171,6 +171,12 @@
     <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline">
       Dashboard
     </a>
+  </div>
+
+  <!-- ── Image Modal / Lightbox ────────────────────────────────── -->
+  <div id="image-modal" class="image-modal">
+    <span id="image-modal-close" class="image-modal-close">&larr; Back to Dashboard</span>
+    <img id="image-modal-content" class="image-modal-content">
   </div>
 
 </div>

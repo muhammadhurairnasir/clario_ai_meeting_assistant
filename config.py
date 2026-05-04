@@ -33,7 +33,7 @@ DB_PATH         = _env("CLARIO_DB_PATH",         os.path.join(DATA_DIR, "databas
 UPLOAD_DIR      = _env("CLARIO_UPLOAD_DIR",      os.path.join(ROOT_DIR, "uploads"))
 
 # ── Model settings ─────────────────────────────────────────────────────────────
-WHISPER_MODEL   = _env("CLARIO_WHISPER_MODEL",   "base")
+WHISPER_MODEL   = _env("CLARIO_WHISPER_MODEL",   "tiny.en")
 BART_MODEL      = _env("CLARIO_BART_MODEL",      "facebook/bart-large-cnn")
 SPACY_MODEL     = _env("CLARIO_SPACY_MODEL",     "en_core_web_sm")
 

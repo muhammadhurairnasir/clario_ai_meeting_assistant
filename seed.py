@@ -17,9 +17,19 @@ STATIC_GRAPH_DIR = APP_ROOT / "static" / "graphs"
 
 def seed():
     print("🧹 Cleaning up old data...")
-    # Delete DB file
+    # Empty tables instead of deleting the DB file to avoid WinError 32 locks
     if os.path.exists(DB_PATH):
-        os.remove(DB_PATH)
+        try:
+            conn = get_connection(DB_PATH)
+            conn.execute("DELETE FROM tasks")
+            conn.execute("DELETE FROM summaries")
+            conn.execute("DELETE FROM transcripts")
+            conn.execute("DELETE FROM meetings")
+            conn.execute("DELETE FROM users")
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"Warning: Could not clear database tables: {e}")
     
     # Delete generated graphs and uploads
     if STATIC_GRAPH_DIR.exists():
