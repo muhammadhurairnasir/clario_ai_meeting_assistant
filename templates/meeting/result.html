@@ -15,11 +15,30 @@
   </div>
 
   <!-- ── Heading ──────────────────────────────────────────── -->
-  <h1 style="font-size:2rem; font-weight:800; margin-bottom:4px;">Meeting results</h1>
-  <p class="text-muted" style="margin-bottom:36px;">
-    📅 {{ meeting.meeting_date }}
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; margin-bottom:4px; gap:16px;">
+    <h1 style="font-size:2.2rem; font-weight:800; margin:0;">
+      {{ meeting.title or "Untitled Meeting" }}
+    </h1>
+    <button onclick="window.print()" class="btn btn-outline hide-on-print" style="display:flex; align-items:center; gap:8px;">
+      📄 Export to PDF
+    </button>
+  </div>
+  
+  <p class="text-muted" style="margin-bottom:36px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <span>📅 {{ meeting.meeting_date }}</span>
     {% if meeting.created_at %}
-      &nbsp;·&nbsp; processed {{ meeting.created_at[:19] }}
+      <span style="opacity:0.5;">|</span>
+      <span>processed {{ meeting.created_at[:19] }}</span>
+    {% endif %}
+    {% if meeting.sentiment %}
+      <span style="opacity:0.5;">|</span>
+      {% if meeting.sentiment == 'Positive' %}
+        <span style="color:#7CA88B; font-weight:600;">🟢 Positive Vibe</span>
+      {% elif meeting.sentiment == 'Tense' %}
+        <span style="color:#C88585; font-weight:600;">🔴 Tense Vibe</span>
+      {% else %}
+        <span style="color:#D9B384; font-weight:600;">🟡 Neutral Vibe</span>
+      {% endif %}
     {% endif %}
   </p>
 

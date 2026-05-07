@@ -56,6 +56,8 @@ def init_db(db_path: str = DB_PATH) -> None:
             CREATE TABLE IF NOT EXISTS meetings (
                 id               INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id          INTEGER NOT NULL,
+                title            TEXT    DEFAULT 'Untitled Meeting',
+                sentiment        TEXT    DEFAULT 'Neutral',
                 meeting_date     TEXT    DEFAULT (date('now')),
                 audio_filename   TEXT,
                 graph_path       TEXT,
@@ -65,7 +67,6 @@ def init_db(db_path: str = DB_PATH) -> None:
                 created_at       TEXT    DEFAULT (datetime('now')),
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
-
             -- ── Transcripts (1-to-1 with meetings) ────────────────────────
             CREATE TABLE IF NOT EXISTS transcripts (
                 id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,6 +96,19 @@ def init_db(db_path: str = DB_PATH) -> None:
                 FOREIGN KEY (meeting_id) REFERENCES meetings(id) ON DELETE CASCADE
             );
         """)
+        conn.commit()
+        
+        # Safe migration for existing DBs
+        try:
+            conn.execute("ALTER TABLE meetings ADD COLUMN title TEXT DEFAULT 'Untitled Meeting'")
+        except Exception:
+            pass
+            
+        try:
+            conn.execute("ALTER TABLE meetings ADD COLUMN sentiment TEXT DEFAULT 'Neutral'")
+        except Exception:
+            pass
+            
         conn.commit()
     print(f" DB ready: {db_path}")
 
@@ -146,6 +160,8 @@ def username_exists(username: str, db_path: str = DB_PATH) -> bool:
 # ── Meetings ───────────────────────────────────────────────────────────────────
 
 def insert_meeting(user_id: int,
+                   title: str = "Untitled Meeting",
+                   sentiment: str = "Neutral",
                    meeting_date: Optional[str] = None,
                    audio_filename: Optional[str] = None,
                    db_path: str = DB_PATH) -> int:
@@ -154,8 +170,8 @@ def insert_meeting(user_id: int,
         meeting_date = datetime.now().strftime("%Y-%m-%d")
     with get_connection(db_path) as conn:
         cur = conn.execute(
-            "INSERT INTO meetings (user_id, meeting_date, audio_filename) VALUES (?,?,?)",
-            (user_id, meeting_date, audio_filename),
+            "INSERT INTO meetings (user_id, title, sentiment, meeting_date, audio_filename) VALUES (?,?,?,?,?)",
+            (user_id, title, sentiment, meeting_date, audio_filename),
         )
         conn.commit()
         return cur.lastrowid
@@ -169,6 +185,12 @@ def set_meeting_graphs(meeting_id: int, graph_path: str,
             "UPDATE meetings SET graph_path = ?, bar_chart_path = ?, donut_chart_path = ?, status_chart_path = ? WHERE id = ?",
             (graph_path, bar_path, donut_path, status_path, meeting_id),
         )
+        conn.commit()
+
+
+def update_meeting_sentiment(meeting_id: int, sentiment: str, db_path: str = DB_PATH) -> None:
+    with get_connection(db_path) as conn:
+        conn.execute("UPDATE meetings SET sentiment = ? WHERE id = ?", (sentiment, meeting_id))
         conn.commit()
 
 
@@ -312,6 +334,37 @@ def get_people_stats(user_id: int,
             ORDER  BY cnt DESC
         """, (user_id,)).fetchall()
         return [(r["assigned_to"], r["cnt"]) for r in rows]
+
+def get_comparison_stats(user_id: int, db_path: str = DB_PATH) -> Dict:
+    with get_connection(db_path) as conn:
+        # Last 10 meetings
+        meetings = conn.execute("""
+            SELECT id, title, meeting_date, sentiment
+            FROM meetings
+            WHERE user_id = ?
+            ORDER BY created_at ASC
+            LIMIT 10
+        """, (user_id,)).fetchall()
+        
+        meeting_ids = [m["id"] for m in meetings]
+        meeting_labels = []
+        for m in meetings:
+            title = m["title"]
+            if len(title) > 15:
+                title = title[:15] + "..."
+            meeting_labels.append(title)
+        
+        # Task counts per meeting
+        tasks_data = []
+        for mid in meeting_ids:
+            cnt = conn.execute("SELECT COUNT(*) as cnt FROM tasks WHERE meeting_id = ?", (mid,)).fetchone()["cnt"]
+            tasks_data.append(cnt)
+            
+        return {
+            "labels": meeting_labels,
+            "tasks_data": tasks_data,
+            "sentiments": [m["sentiment"] for m in meetings]
+        }
 
 
 def mark_task_complete(task_id: int, db_path: str = DB_PATH) -> None:

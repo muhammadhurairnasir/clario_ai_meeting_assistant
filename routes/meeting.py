@@ -48,6 +48,7 @@ ALLOWED_AUDIO = {".mp3", ".wav", ".m4a", ".ogg", ".flac", ".webm"}
 def upload():
     if request.method == "POST":
         user_id    = session["user_id"]
+        meeting_title = request.form.get("meeting_title", "").strip() or "Untitled Meeting"
         text_input = request.form.get("text_input", "").strip()
         audio_file = request.files.get("audio_file")
         audio_path = None
@@ -81,6 +82,7 @@ def upload():
         init_db(DB_PATH)
         meeting_id = insert_meeting(
             user_id        = user_id,
+            title          = meeting_title,
             audio_filename = audio_name,
             db_path        = DB_PATH,
         )

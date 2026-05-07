@@ -416,3 +416,30 @@ tr:hover td { background: rgba(255,255,255,0.025); }
   from {transform:scale(0.9); opacity:0;}
   to {transform:scale(1); opacity:1;}
 }
+
+/* ── Print / PDF Export ───────────────────────────────────── */
+@media print {
+  .navbar, .hide-on-print, .btn, .image-modal {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .page-body {
+    padding-top: 0;
+  }
+  .card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+  }
+  .text-muted { color: #555; }
+  h1, h2, h3 { color: #000; }
+  .badge { border: 1px solid #ccc; color: #000 !important; background: transparent !important; }
+  .transcript-box { background: transparent; border: 1px solid #ccc; color: #333; max-height: none; }
+  .section-heading::after { background: #eee; }
+}

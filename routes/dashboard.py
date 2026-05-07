@@ -51,3 +51,16 @@ def index():
         people_stats   = people_stats,
         all_tasks      = all_tasks,
     )
+
+@dashboard_bp.route("/comparison")
+@login_required
+def comparison():
+    from models.database import get_comparison_stats
+    user_id = session["user_id"]
+    stats = get_comparison_stats(user_id, DB_PATH)
+    
+    return render_template(
+        "dashboard/comparison.html",
+        user=current_user(),
+        stats=stats
+    )

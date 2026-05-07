@@ -13,6 +13,7 @@ python-dotenv
 
 # ── AI / ML core ──────────────────────────────────────────────────────────────
 openai-whisper
+textblob
 transformers>=4.30.0
 torch>=2.0.0
 torchaudio>=2.0.0

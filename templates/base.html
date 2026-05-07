@@ -24,7 +24,14 @@
       </a>
       <ul class="navbar-nav">
         {% if session.get('user_id') %}
+          <li>
+            <form action="{{ url_for('search.search') }}" method="GET" style="display:flex; align-items:center; background:rgba(255,255,255,0.05); border-radius:20px; padding:2px 10px; margin-right:10px;">
+              <span style="opacity:0.5; font-size:0.9rem;">🔍</span>
+              <input type="text" name="q" placeholder="Search meetings..." style="background:transparent; border:none; color:var(--text); padding:4px 8px; width:150px; font-size:0.9rem; outline:none;">
+            </form>
+          </li>
           <li><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('dashboard.comparison') }}">Trends</a></li>
           <li><a href="{{ url_for('meeting.upload') }}">Upload</a></li>
           <li>
             <a href="{{ url_for('auth.logout') }}" class="btn btn-outline btn-sm">

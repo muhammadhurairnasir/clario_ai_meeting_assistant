@@ -36,10 +36,12 @@ def create_app() -> Flask:
     from routes.auth      import auth_bp
     from routes.dashboard import dashboard_bp
     from routes.meeting   import meeting_bp
+    from routes.search    import search_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(meeting_bp)
+    app.register_blueprint(search_bp)
 
     # ── Error handlers ─────────────────────────────────────────────────────────
     @app.errorhandler(404)

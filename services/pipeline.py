@@ -167,13 +167,29 @@ def run_clario_pipeline(
 
     # ── 4. Persist to DB ───────────────────────────────────────────────────────
     graph_path = ""
+    vibe = "Neutral"
     if meeting_id is not None:
         try:
+            # Calculate Sentiment
+            try:
+                from textblob import TextBlob
+                from models.database import update_meeting_sentiment
+                polarity = TextBlob(transcript).sentiment.polarity
+                if polarity > 0.15:
+                    vibe = "Positive"
+                elif polarity < -0.05:
+                    vibe = "Tense"
+                else:
+                    vibe = "Neutral"
+                update_meeting_sentiment(meeting_id, vibe, db_path)
+            except Exception as e:
+                print(f"  Sentiment analysis failed: {e}")
+
             insert_transcript(meeting_id, transcript, db_path)
             insert_summary(meeting_id,    summary,    db_path)
             if tasks:
                 insert_tasks(meeting_id, tasks, db_path)
-            print(f" Results saved to DB (meeting_id={meeting_id})")
+            print(f" Results saved to DB (meeting_id={meeting_id}) with vibe: {vibe}")
         except Exception as exc:
             print(f"️  DB save failed: {exc}")
 
