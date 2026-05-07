@@ -10,6 +10,7 @@ from config import DB_PATH
 from models.database import (
     get_meetings_by_user, get_pending_tasks,
     get_people_stats, init_db, get_connection,
+    get_all_user_tasks
 )
 from routes.utils import login_required, current_user
 from flask import Blueprint
@@ -38,6 +39,8 @@ def index():
     conn.close()
     total_tasks_count = total_row["cnt"] if total_row else 0
 
+    all_tasks = get_all_user_tasks(user_id, DB_PATH)
+
     return render_template(
         "dashboard/index.html",
         user           = current_user(),
@@ -46,4 +49,5 @@ def index():
         total_tasks    = total_tasks_count,
         pending_count  = len(pending_tasks),
         people_stats   = people_stats,
+        all_tasks      = all_tasks,
     )

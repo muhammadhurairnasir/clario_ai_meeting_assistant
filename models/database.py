@@ -288,6 +288,17 @@ def get_pending_tasks(user_id: int,
         """, (user_id,)).fetchall()
         return [dict(r) for r in rows]
 
+def get_all_user_tasks(user_id: int,
+                      db_path: str = DB_PATH) -> List[Dict]:
+    with get_connection(db_path) as conn:
+        rows = conn.execute("""
+            SELECT tk.* FROM tasks tk
+            JOIN meetings m ON m.id = tk.meeting_id
+            WHERE m.user_id = ?
+            ORDER BY tk.id DESC
+        """, (user_id,)).fetchall()
+        return [dict(r) for r in rows]
+
 
 def get_people_stats(user_id: int,
                      db_path: str = DB_PATH) -> List[Tuple[str, int]]:

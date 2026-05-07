@@ -104,7 +104,9 @@
         {% if people_stats %}
           {% for name, count in people_stats[:8] %}
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
-            <span style="font-weight:500;">{{ name }}</span>
+            <span class="badge badge-green attendee-tag" data-name="{{ name }}" style="cursor:pointer; font-size: 0.9rem; padding: 6px 14px;" title="View all tasks for {{ name }}">
+              👤 {{ name }}
+            </span>
             <span class="badge badge-blue">{{ count }} task{{ 's' if count != 1 }}</span>
           </div>
           {% endfor %}
@@ -116,6 +118,85 @@
 
   </div>
 
+  <!-- ── Attendee Task Modal ────────────────────────────────────── -->
+  <div id="attendee-modal" class="image-modal" style="display:none; position:fixed; z-index:9999; left:0; top:0; width:100%; height:100%; background:rgba(10,12,16,0.95); backdrop-filter:blur(10px);">
+    <div class="attendee-modal-content card" style="background:var(--bg-deep); padding: 30px; margin: 10vh auto; max-width: 600px; position:relative;">
+      <span id="attendee-modal-close" style="position:absolute; top:15px; right:20px; color:var(--muted); font-size:1.1rem; cursor:pointer; padding:8px 16px; background:rgba(255,255,255,0.05); border-radius:var(--radius-sm);">&times; Close</span>
+      <h3 id="attendee-modal-title" style="margin-bottom:20px; font-size:1.5rem; display:flex; align-items:center; gap:10px;"></h3>
+      <div id="attendee-modal-body" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;"></div>
+    </div>
+  </div>
+
 </div>
 </div>
+
+  <!-- ── Interactive Attendee Script ────────────────────────────── -->
+  <script>
+    const tasksData = [
+      {% for t in all_tasks %}
+      {
+        id: "{{ t.id }}",
+        description: {{ t.description|tojson }},
+        assigned_to: "{{ t.assigned_to }}",
+        due_date: "{{ t.due_date }}",
+        priority: "{{ t.priority }}",
+        status: "{{ t.status }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const modal = document.getElementById("attendee-modal");
+      const modalTitle = document.getElementById("attendee-modal-title");
+      const modalBody = document.getElementById("attendee-modal-body");
+      const closeBtn = document.getElementById("attendee-modal-close");
+
+      // Click to open
+      document.querySelectorAll(".attendee-tag").forEach(tag => {
+        tag.addEventListener("click", () => {
+          const person = tag.getAttribute("data-name");
+          const personTasks = tasksData.filter(t => t.assigned_to === person);
+          
+          modalTitle.innerHTML = `👤 Overall tasks for <span class="text-purple">${person}</span>`;
+          modalBody.innerHTML = "";
+          
+          if (personTasks.length === 0) {
+            modalBody.innerHTML = `<p class="text-muted">No tasks found.</p>`;
+          } else {
+            let listHtml = `<ul style="list-style:none; padding:0; margin:0;">`;
+            personTasks.forEach(pt => {
+               const priorityColor = pt.priority === 'High' ? '#C88585' : (pt.priority === 'Medium' ? '#D9B384' : '#7CA88B');
+               const statusIcon = pt.status === 'completed' ? '✅' : '🔄';
+               listHtml += `
+                 <li style="padding:18px; border:1px solid var(--border); margin-bottom:12px; background:rgba(255,255,255,0.02); border-radius:12px; transition:all 0.2s ease;">
+                   <div style="font-weight:600; margin-bottom:10px; font-size:1.05rem; line-height:1.5;">${pt.description}</div>
+                   <div style="font-size:0.85rem; color:var(--muted); display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+                     <span style="display:flex; align-items:center; gap:6px;"><span style="color:#D9B384">📅</span> ${pt.due_date}</span>
+                     <span style="display:flex; align-items:center; gap:6px; color:${priorityColor};">● ${pt.priority} Priority</span>
+                     <span style="display:flex; align-items:center; gap:6px;">${statusIcon} ${pt.status === 'completed' ? 'Done' : 'Pending'}</span>
+                   </div>
+                 </li>
+               `;
+            });
+            listHtml += `</ul>`;
+            modalBody.innerHTML = listHtml;
+          }
+          
+          modal.style.display = "block";
+        });
+      });
+
+      // Click to close
+      closeBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+
+      // Close on outside click
+      window.addEventListener("click", (e) => {
+        if (e.target == modal) {
+          modal.style.display = "none";
+        }
+      });
+    });
+  </script>
 {% endblock %}
