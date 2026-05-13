@@ -158,5 +158,24 @@ def complete_task(task_id: int):
         return redirect(url_for("dashboard.index"))
 
     mark_task_complete(task_id, DB_PATH)
+
+    # ── Regenerate status pie chart to reflect updated pending/completed counts ──
+    try:
+        import pathlib
+        from utils.visualization import generate_status_pie_chart
+        from models.database import get_tasks_by_meeting
+
+        meeting_id = row["meeting_id"]
+        updated_tasks = get_tasks_by_meeting(meeting_id, DB_PATH)
+
+        app_root = pathlib.Path(__file__).resolve().parent.parent
+        status_path_abs = app_root / "static" / "graphs" / f"status_m{meeting_id}.png"
+        status_path_abs.parent.mkdir(parents=True, exist_ok=True)
+
+        generate_status_pie_chart(updated_tasks, output_path=str(status_path_abs))
+        print(f"  Status pie chart regenerated for meeting {meeting_id}")
+    except Exception as exc:
+        print(f"  Status chart regeneration failed: {exc}")
+
     flash("Task marked as completed! ✅", "success")
     return redirect(url_for("meeting.result", meeting_id=row["meeting_id"]))

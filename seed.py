@@ -48,8 +48,12 @@ def seed():
     user_id = insert_user("DemoUser", "demo@clario.ai", pwd_hash)
 
     print("🌱 Seeding Sample Meeting 1: Q3 Planning...")
-    m1_id = insert_meeting(user_id, meeting_date="2026-05-02")
-    
+    m1_id = insert_meeting(
+        user_id=user_id,
+        title="Q3 Strategy Planning",
+        sentiment="Positive",
+        meeting_date="2026-05-02"
+    )
     transcript_1 = (
         "Alright everyone, let's kick off the Q3 planning session. "
         "We have a lot of critical items to cover. "
